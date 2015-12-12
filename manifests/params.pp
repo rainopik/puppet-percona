@@ -69,7 +69,7 @@ class percona::params (
   $tmpdir            = undef,
   $logdir            = '/var/log/percona',
   $logdir_group      = 'root',
-  $socket            = '/var/lib/mysql/mysql.sock',
+  $socket            = undef,
   $datadir           = '/var/lib/mysql',
   $targetdir         = '/data/backups/mysql/',
   $errorlog          = '/var/log/mysqld.log',
@@ -100,6 +100,8 @@ class percona::params (
         default => $config_template,
       }
       $config_include_dir_default = "${config_dir}/conf.d"
+
+      $socket_default = '/var/run/mysqld/mysqld.sock'
     }
 
     /(?i:redhat|centos)/: {
@@ -109,6 +111,8 @@ class percona::params (
         default => $config_template,
       }
       $config_include_dir_default = undef
+
+      $socket_default = '/var/lib/mysql/mysql.sock'
     }
 
     default: {
@@ -119,6 +123,11 @@ class percona::params (
   $_config_file = $config_file ? {
     undef   => $default_config_file,
     default => $config_file,
+  }
+
+  $_socket = $socket ? {
+    undef   => $socket_default,
+    default => $socket,
   }
 
 }

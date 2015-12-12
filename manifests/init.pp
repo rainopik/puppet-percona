@@ -86,7 +86,7 @@ class percona (
   $tmpdir           = $percona::params::tmpdir,
   $logdir           = $percona::params::logdir,
   $logdir_group     = $percona::params::logdir_group,
-  $socket           = $percona::params::socket,
+  $socket           = $percona::params::_socket,
   $datadir          = $percona::params::datadir,
   $targetdir        = $percona::params::targetdir,
   $errorlog         = $percona::params::errorlog,
@@ -119,6 +119,12 @@ class percona (
     default => $config_include_dir,
   }
 
+  $socket_default = $::percona::params::_socket
+  $_socket = $socket ? {
+    undef     => $socket_default,
+    default   => $socket,
+  }
+
   $sanitized_servername = regsubst($::percona::servername,'\.','-','G')
 
 
@@ -128,7 +134,7 @@ class percona (
       'mysqld/#-puppet-#servername'      => $::percona::servername,
       'mysqld/#-puppet-#logdir'          => $::percona::logdir,
       'mysqld/datadir'                   => $::percona::datadir,
-      'mysqld/socket'                    => $::percona::socket,
+      'mysqld/socket'                    => $::percona::_socket,
       'mysqld/user'                      => $::percona::daemon_user,
       'mysqld/innodb_log_group_home_dir' => $::percona::datadir,
       'mysqld/log_bin'                   => "${::percona::datadir}/${sanitized_servername}-bin",
