@@ -149,5 +149,19 @@ class percona::config::server {
     }
   }
 
-}
 
+  # If custom datadir was used, move the default that was created during install:
+  if $::percona::datadir != $::percona::params::default_datadir {
+    # Move contents of the default datadir what was created during package install
+    exec { 'Move mysql datadir to custom location':
+      command         => "/bin/mv ${$::percona::params::default_datadir} ${$::percona::datadir}",
+      onlyif          => [
+        "/usr/bin/test -d ${$::percona::params::default_datadir}",
+        "/usr/bin/test ! -d ${$::percona::datadir}",
+      ],
+      # Note: should be ran after mysql-common package has been installed (so mysql user exists) and before starting the service
+      require     => Class['percona::install'],
+    }
+  }
+
+}

@@ -130,4 +130,6 @@ class percona::params (
     default => $socket,
   }
 
+  $default_datadir = '/var/lib/mysql'
+  
 }
