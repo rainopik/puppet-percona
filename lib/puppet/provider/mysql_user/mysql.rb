@@ -24,6 +24,10 @@ Puppet::Type.type(:mysql_user).provide(:mysql) do
     end
   end
 
+  def mysql_version
+    mysql(mysql_args("mysql", "-Be", "select @@version"))
+  end
+
   def mysql_flush
     mysqladmin(mysql_args("flush-privileges"))
   end
@@ -43,7 +47,12 @@ Puppet::Type.type(:mysql_user).provide(:mysql) do
   end
 
   def password_hash
-    mysql(mysql_args("mysql", "-NBe", "select password from mysql.user where CONCAT(    user, '@', host) = '%s'" % @resource.value(:name))).chomp
+    ver = mysql_version
+    if ver.match(/5\.7\./)
+      mysql(mysql_args("mysql", "-NBe", "select authentication_string from mysql.user where CONCAT(    user, '@', host) = '%s'" % @resource.value(:name))).chomp
+    else
+      mysql(mysql_args("mysql", "-NBe", "select password from mysql.user where CONCAT(    user, '@', host) = '%s'" % @resource.value(:name))).chomp
+    end
   end
 
   def password_hash=(string)
